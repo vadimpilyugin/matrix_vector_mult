@@ -18,7 +18,7 @@ CXXFLAGS += -I $(INCLUDE_DIR)
 # Add path with compiled libraries to gcc search path
 CXXFLAGS +=
 # Link libraries gcc flag: library will be searched with prefix "lib".
-LDFLAGS = -lm
+LDFLAGS = 
 
 # Helper macros
 # subst is sensitive to leading spaces in arguments.
@@ -37,7 +37,7 @@ CXXFILES := $(wildcard $(SRC_DIR)/*.cpp)
 
 # Alias to make all targets.
 .PHONY: all
-all: $(BIN_DIR)/solve
+all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen
 
 # Suppress makefile rebuilding.
 Makefile: ;
@@ -56,8 +56,8 @@ deps.mk:
 $(BIN_DIR)/solve: $(OBJ_DIR)/solve.o
 	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
 
-# $(BIN_DIR)/matrix_example: $(OBJ_DIR)/matrix_example.o $(OBJ_DIR)/io.o
-#	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
+$(BIN_DIR)/matrix_gen: $(OBJ_DIR)/matrix_gen.o
+	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
 
 # Pattern for generating dependency description files (*.d)
 $(DEP_DIR)/%.d: $(SRC_DIR)/%.cpp
