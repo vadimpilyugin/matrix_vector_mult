@@ -30,14 +30,14 @@ src_to_obj = $(call make_path,.o, $(SRC_DIR), $(OBJ_DIR), $(1))
 src_to_dep = $(call make_path,.d, $(SRC_DIR), $(DEP_DIR), $(1))
 
 # All source files in our project that must be built into movable object code.
-CXXFILES := $(wildcard $(SRC_DIR)/*.cpp)
+CXXFILES := $(wildcard $(SRC_DIR)/*.c)
 
 # Default target (make without specified target).
 .DEFAULT_GOAL := all
 
 # Alias to make all targets.
 .PHONY: all
-all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen
+all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen $(BIN_DIR)/matrix_check
 
 # Suppress makefile rebuilding.
 Makefile: ;
@@ -59,21 +59,24 @@ $(BIN_DIR)/solve: $(OBJ_DIR)/solve.o
 $(BIN_DIR)/matrix_gen: $(OBJ_DIR)/matrix_gen.o
 	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
 
+$(BIN_DIR)/matrix_check: $(OBJ_DIR)/matrix_check.o
+	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
+
 # Pattern for generating dependency description files (*.d)
-$(DEP_DIR)/%.d: $(SRC_DIR)/%.cpp
+$(DEP_DIR)/%.d: $(SRC_DIR)/%.c
 	$(CXX) $(CXXFLAGS) -E -MM -MT $(call src_to_obj, $<) -MT $@ -MF $@ $<
 
 # Pattern for compiling object files (*.o)
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CXX) $(CXXFLAGS) -c -o $(call src_to_obj, $<) $<
 
 # Fictive target
 .PHONY: clean
 # Delete all temprorary and binary files
 clean:
+	rm -f data/*.bin
 	rm -rf $(BUILD_DIR)
 	rm -f deps.mk
-	rm -rf data/
 
 # Additional targers for testing purposes
 
