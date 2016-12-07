@@ -21,13 +21,15 @@ void do_check(float *v_computed, float *v_real)
 {
 	int i;
 	float diff = 0, max_diff = 0, a, b;
-	for(i = 0; i < n; i++)
+	printf("%s\n", "Computed\tReal\n");
+	for(i = 0; i < m; i++)
 	{
 		a = v_computed[i];
 		b = v_real[i];
 		diff = a > b ? a-b : b-a;
 		if(diff > max_diff)
 			max_diff = diff;
+		printf("%5.2f\t%5.2f\n", a, b);
 	}
 	if(max_diff > eps)
 		fprintf(stderr, "\nМаксимальное отклонение: %f\nВсе хорошо? Нет\n", max_diff);
@@ -56,14 +58,13 @@ int main()
 
 	// allocate memory for 3 inputs and 1 computed result
 	float *a = (float *) malloc(m*n*sizeof(float));
-	float *v = (float *) malloc(m*sizeof(float));
+	float *v = (float *) malloc(n*sizeof(float));
 	float *real = (float *) malloc(m*sizeof(float));
 	float *result = (float *)malloc(m*sizeof(float));
 
 	// read matrix and 2 vectors
 	fread(a, sizeof(float), m*n, f);
-	fread(v, sizeof(float), m, fv);
-	printf("Hello, world!\n");
+	fread(v, sizeof(float), n, fv);
 	fread(real, sizeof(float), m, freal);
 
 	fclose(f);
@@ -73,10 +74,11 @@ int main()
 
 	do_operation(a, v, result);
 
-	output_matrix(result, m, 1, "Computed vector");
-	output_matrix(real, m, 1, "Real vector");
-	output_matrix(a, m, n, "Original matrix");
-	output_matrix(v, m, 1, "Original vector");
+	// output_matrix(result, m, 1, "Computed vector");
+	// output_matrix(real, m, 1, "Real vector");
+	printf("Hello, World!\n");
+	//output_matrix(a, m, n, "Original matrix");
+	//output_matrix(v, n, 1, "Original vector");
 
 	do_check(result, real);
 

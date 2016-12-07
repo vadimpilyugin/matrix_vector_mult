@@ -11,20 +11,19 @@ float frandom()
 int main()
 {
 	float *a = (float *) malloc(m*n*sizeof(float));
-	float *v = (float *) malloc(m*sizeof(float));
+	float *v = (float *) malloc(n*sizeof(float));
 	srand(time(NULL));
 	int i, j;
 	for(i = 0; i < m; i++)
-	{
 		for(j = 0; j < n; j++)
 			a[i*n+j] = (int)frandom();
-		v[i] = (int)frandom();
-	}
+	for(j = 0; j < n; j++)
+		v[j] = (int)frandom();
 	FILE *f, *fv;
 	f = fopen(matrix_fn, "wb");
 	fv = fopen(vector_fn, "wb");
 	fwrite(a, sizeof(float), m*n, f);
-	fwrite(v, sizeof(float), m, fv);
+	fwrite(v, sizeof(float), n, fv);
 	fclose(f);
 	fclose(fv);
 	free(a);
