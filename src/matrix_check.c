@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "mpi.h"
 
 const float eps = 1e-5;
 
@@ -49,8 +50,16 @@ void output_matrix(float *a, int rows, int cols, const char *descr)
 	}
 }
 
-int main()
+int main(int argc, char **argv)
 {
+	int rank, proc_num;
+	MPI_Init (&argc, &argv);
+    	MPI_Comm_rank (MPI_COMM_WORLD, &rank);
+    	MPI_Comm_size (MPI_COMM_WORLD, &proc_num);
+	if(rank != 0) {
+		MPI_Finalize();
+		exit(0);
+	}
 	// read from files
 	FILE *f = fopen(matrix_fn, "rb");
 	FILE *fv = fopen(vector_fn, "rb");
@@ -94,3 +103,4 @@ int main()
 	free(real);
 	exit(0);
 }
+

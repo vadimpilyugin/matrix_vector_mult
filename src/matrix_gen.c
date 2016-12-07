@@ -28,4 +28,6 @@ int main()
 	fclose(fv);
 	free(a);
 	free(v);
+	return(0);
 }
+

@@ -74,10 +74,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 .PHONY: clean
 # Delete all temprorary and binary files
 clean:
-	rm -f data/*.bin
 	rm -rf $(BUILD_DIR)
 	rm -f deps.mk
-
+	rm -f *.out
+	rm -f *.err
+	rm -f core*
 # Additional targers for testing purposes
 
 .PHONY: debug

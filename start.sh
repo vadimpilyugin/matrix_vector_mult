@@ -21,6 +21,35 @@ Input
 mkdir -p data
 make clean
 make all
-build/bin/matrix_gen
-mpiexec -n $total_proc_num build/bin/solve
-build/bin/matrix_check
+
+PS3='Please enter your choice: '
+options=("Generate matrices" "Multiply vector by matrix" "Check for errors" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Generate matrices")
+            echo "you chose choice 1"
+            rm -f data/*.bin
+	    mpisubmit.bg build/bin/matrix_gen
+	    watch -n1 ls
+	    ;;
+        "Multiply vector by matrix")
+            echo "you chose choice 2"
+            mpisubmit.bg  -n $total_proc_num build/bin/solve
+	    watch -n1 ls
+	    ;;
+        "Check for errors")
+            echo "you chose choice 3"
+	    mpisubmit.bg build/bin/matrix_check 
+            watch -n1 ls
+	    ;;
+        "Quit")
+            break
+            ;;
+        *) echo invalid option;;
+    esac
+done
+
+#mpisubmit.bg build/bin/matrix_gen
+#mpisubmit.bg  -n $total_proc_num build/bin/solve
+#mpiexec build/bin/matrix_check

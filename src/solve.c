@@ -10,6 +10,18 @@ int row_cnt;
 float *a, *v, *result;
 float *small_a, *small_result;
 
+double sum_time = 0, tmp_time;
+
+void go()
+{
+	tmp_time = MPI_Wtime();
+}
+void stop()
+{
+	tmp_time = MPI_Wtime() - tmp_time;
+	sum_time += tmp_time;
+}
+
 void do_operation(float *a, float *v, float *result, int row_cnt)
 {
 	int i, j;
@@ -63,7 +75,6 @@ void myfree()
 
 int main(int argc, char **argv)
 {
-
 	MPI_Init (&argc, &argv);
     MPI_Comm_rank (MPI_COMM_WORLD, &rank);
     MPI_Comm_size (MPI_COMM_WORLD, &proc_num);
@@ -89,6 +100,7 @@ int main(int argc, char **argv)
 		fread(v, sizeof(float), n, fv);
 		fclose(f);
 		fclose(fv);
+		go();
 	}
 
 	// broadcast vector
@@ -111,11 +123,13 @@ int main(int argc, char **argv)
 	{
 		if(i_am_the_master)
 		{
+			stop();
+			printf("%f\n", sum_time);
 			FILE *f = fopen(output_file, "wb");
 			fwrite(result, sizeof(float), m, f);
 			fclose(f);
 		}
-    printf("Hello, world! rank = %d\n", rank);
+//    printf("Hello, world! rank = %d\n", rank);
 		if(i_am_the_master && threshold != 0)
 			fprintf(stderr, "Something bad happened! Master has exited where it shouldn't\n");
 		myfree();
@@ -131,6 +145,8 @@ int main(int argc, char **argv)
 	// write to file
 	if(i_am_the_master)
 	{
+		stop(); 
+		printf("%f\n", sum_time);
 		FILE *f = fopen(output_file, "wb");
 		fwrite(result, sizeof(float), m, f);
 		fclose(f);
@@ -141,3 +157,4 @@ int main(int argc, char **argv)
 	MPI_Finalize();
 	exit(0);
 }
+
