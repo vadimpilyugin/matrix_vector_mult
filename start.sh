@@ -19,8 +19,18 @@ const char *output_file = "$output_file";
 Input
 
 mkdir -p data
+echo "Cleaning working directory..."
 make clean
-make all
+printf "Building project"
+
+make all >/dev/null &
+pid=$!
+while [ -d /proc/$pid ]
+do
+  printf "."
+  sleep 1
+done
+echo
 
 PS3='Please enter your choice: '
 options=("Generate matrices" "Multiply vector by matrix" "Check for errors" "Quit")
@@ -42,6 +52,7 @@ do
             echo "you chose choice 3"
 	    mpisubmit.bg build/bin/matrix_check 
             watch -n1 ls
+	    cat matrix_check*.err
 	    ;;
         "Quit")
             break
