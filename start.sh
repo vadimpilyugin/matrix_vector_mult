@@ -3,8 +3,6 @@
 # остановка после первой ошибки
 set -o errexit 
 
-export PATH=/home/vadim/mpich-install/bin:$PATH
-
 # Параметры программы
 source ./config.cfg
 
@@ -19,6 +17,7 @@ const char *output_file = "$output_file";
 Input
 
 mkdir -p data
+mkdir -p result
 echo "Cleaning working directory..."
 make clean
 printf "Building project"
@@ -32,35 +31,52 @@ do
 done
 echo
 
-PS3='Please enter your choice: '
-options=("Generate matrices" "Multiply vector by matrix" "Check for errors" "Quit")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Generate matrices")
-            echo "you chose choice 1"
-            rm -f data/*.bin
-	    mpisubmit.bg build/bin/matrix_gen
-	    watch -n1 ls
-	    ;;
-        "Multiply vector by matrix")
-            echo "you chose choice 2"
-            mpisubmit.bg  -n $total_proc_num build/bin/solve
-	    watch -n1 ls
-	    ;;
-        "Check for errors")
-            echo "you chose choice 3"
-	    mpisubmit.bg build/bin/matrix_check 
-            watch -n1 ls
-	    cat matrix_check*.err
-	    ;;
-        "Quit")
-            break
-            ;;
-        *) echo invalid option;;
-    esac
-done
+# Generate matrices
+rm -f data/*.bin
 
-#mpisubmit.bg build/bin/matrix_gen
-#mpisubmit.bg  -n $total_proc_num build/bin/solve
-#mpiexec build/bin/matrix_check
+mpisubmit.bg build/bin/matrix_gen
+printf "Generating matrices"
+while [ ! -f ./matrix_gen*.out ]
+do
+  sleep 1
+  printf "."
+done
+rm *.out *.err >/dev/null
+for i in {1..10};do printf "." && sleep 1; done
+echo
+
+printf "List of matrices:\n"
+  ls data | cat -n
+echo
+
+# iterate through number of processes
+:>result/result.txt
+rm -f result/time.txt
+rm -f result/error.txt
+proc_num=("32" "64" "128" "256" "512")
+for i in "${proc_num[@]}"
+do
+  i=256
+  # Multiply vector by matrix
+  mpisubmit.bg --nproc $i --wtime 00:05:00 --stdout result/time.txt --stderr result/error.txt build/bin/solve
+  printf "Multiplication with $i processes"
+  while [ ! -f result/time.txt ]
+  do
+    sleep 1
+    printf "."
+  done
+  for j in {1..15};do printf "." && sleep 1; done
+  ptime=$(cat result/time.txt)
+  printf "Done in $ptime seconds\n"
+  time_all="$i, $ptime"
+  echo $time_all >>result/result.txt
+  printf "Table:\n"
+  cat result/result.txt
+  printf "Errors:\n"
+  if [  -f result/error.txt ]; then
+    cat result/error.txt
+    rm -f result/error.txt
+  fi
+  rm -f result/time.txt
+
+done

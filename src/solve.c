@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 		FILE *f = fopen(output_file, "wb");
 		fwrite(result, sizeof(float), m, f);
 		fclose(f);
-		printf("Master has written answer to file %s\n", output_file);
+		//printf("Master has written answer to file %s\n", output_file);
 	}
 	// exit
 	myfree();
