@@ -16,8 +16,7 @@ const char *vector_fn = "$vector_fn";
 const char *output_file = "$output_file";
 Input
 
-mkdir -p data
-mkdir -p result
+mkdir -p data result
 echo "Cleaning working directory..."
 make clean
 printf "Building project"
@@ -34,15 +33,14 @@ echo
 # Generate matrices
 rm -f data/*.bin
 
-mpisubmit.bg build/bin/matrix_gen
+mpisubmit.bg --nproc 1 build/bin/matrix_gen
 printf "Generating matrices"
-while [ ! -f ./matrix_gen*.out ]
+while [ ! -f $matrix_fn ]
 do
   sleep 1
   printf "."
 done
-rm *.out *.err >/dev/null
-for i in {1..10};do printf "." && sleep 1; done
+# for i in {1..10};do printf "." && sleep 1; done
 echo
 
 printf "List of matrices:\n"
@@ -50,33 +48,28 @@ printf "List of matrices:\n"
 echo
 
 # iterate through number of processes
-:>result/result.txt
-rm -f result/time.txt
-rm -f result/error.txt
-proc_num=("32" "64" "128" "256" "512")
+rm result/*.txt
+:>data/result.txt
+proc_num=("32" "64" "128")
 for i in "${proc_num[@]}"
 do
-  i=256
   # Multiply vector by matrix
-  mpisubmit.bg --nproc $i --wtime 00:05:00 --stdout result/time.txt --stderr result/error.txt build/bin/solve
-  printf "Multiplication with $i processes"
-  while [ ! -f result/time.txt ]
-  do
-    sleep 1
-    printf "."
-  done
-  for j in {1..15};do printf "." && sleep 1; done
-  ptime=$(cat result/time.txt)
-  printf "Done in $ptime seconds\n"
+  mpisubmit.bg --nproc $i --wtime 00:05:00 --stdout "result/time${i}.txt" --stderr "result/error${i}.txt" build/bin/solve
+done
+printf "Multiplication with ${proc_num[@]} processes"
+sleep 1
+watch -n1 ls result
+
+for i in "${proc_num[@]}"
+do
+  # collect results in data/result.txt
+  ptime=$(cat result/time${i}.txt)
   time_all="$i, $ptime"
   echo $time_all >>result/result.txt
-  printf "Table:\n"
-  cat result/result.txt
-  printf "Errors:\n"
-  if [  -f result/error.txt ]; then
-    cat result/error.txt
-    rm -f result/error.txt
-  fi
-  rm -f result/time.txt
-
 done
+printf "Table:\n"
+cat result/result.txt
+printf "Errors:\n"
+if [  -f result/error*.txt ]; then
+  cat result/error*.txt
+fi
