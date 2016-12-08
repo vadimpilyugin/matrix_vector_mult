@@ -121,7 +121,7 @@ int main(int argc, char **argv)
     MPI_Comm_size (MPI_COMM_WORLD, &proc_num);
 
 	i_am_the_master = rank == 0;
-	column_wise = m < n && m < proc_num && (n / proc_num) > 0;
+	column_wise = m < n && (n / proc_num) > 0;
 
 	if(column_wise)
 	{
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 				fwrite(result, sizeof(float), m, f);
 				fclose(f);
 			}
-	    printf("Hello, world! rank = %d\n", rank);
+	    //printf("Hello, world! rank = %d\n", rank);
 			if(i_am_the_master && threshold != 0)
 				fprintf(stderr, "Something bad happened! Master has exited where it shouldn't\n");
 			myfree1();

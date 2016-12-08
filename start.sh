@@ -48,18 +48,37 @@ printf "List of matrices:\n"
 echo
 
 # iterate through number of processes
-rm result/*.txt
-:>data/result.txt
-proc_num=("32" "64" "128")
+rm -f result/*.txt
+proc_num=("32" "64" "128" "256" "512")
+count=0
 for i in "${proc_num[@]}"
 do
+  ((++count))
   # Multiply vector by matrix
   mpisubmit.bg --nproc $i --wtime 00:05:00 --stdout "result/time${i}.txt" --stderr "result/error${i}.txt" build/bin/solve
 done
-printf "Multiplication with ${proc_num[@]} processes"
-sleep 1
-watch -n1 ls result
 
+printf "Multiplying $count times\n"
+
+printf "Multiplication"
+sleep 1
+
+#watch -n1 ls result
+
+while [ "$(cat result/time*.txt 2>/dev/null| wc -l)" != $count ]
+do
+  sleep 1
+  tmp=$(cat result/time*.txt 2>/dev/null| wc -l)
+  printf "${tmp} of ${count} files ready\n"
+done
+echo
+while [ "$(ls -l result/time*.err 2>/dev/null| wc -l)" != "0" ]
+do
+  sleep 1
+  ls -l result/time*.err 2>/dev/null| wc -l
+  printf "."
+done
+echo
 for i in "${proc_num[@]}"
 do
   # collect results in data/result.txt
@@ -73,3 +92,6 @@ printf "Errors:\n"
 if [  -f result/error*.txt ]; then
   cat result/error*.txt
 fi
+
+echo "Starting gnuplot..."
+gnuplot plot/plot_max.gpl
