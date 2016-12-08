@@ -18,7 +18,7 @@ CXXFLAGS += -I $(INCLUDE_DIR)
 # Add path with compiled libraries to gcc search path
 CXXFLAGS +=
 # Link libraries gcc flag: library will be searched with prefix "lib".
-LDFLAGS = -lm
+LDFLAGS = 
 
 # Helper macros
 # subst is sensitive to leading spaces in arguments.
@@ -30,14 +30,14 @@ src_to_obj = $(call make_path,.o, $(SRC_DIR), $(OBJ_DIR), $(1))
 src_to_dep = $(call make_path,.d, $(SRC_DIR), $(DEP_DIR), $(1))
 
 # All source files in our project that must be built into movable object code.
-CXXFILES := $(wildcard $(SRC_DIR)/*.cpp)
+CXXFILES := $(wildcard $(SRC_DIR)/*.c)
 
 # Default target (make without specified target).
 .DEFAULT_GOAL := all
 
 # Alias to make all targets.
 .PHONY: all
-all: $(BIN_DIR)/solve
+all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen $(BIN_DIR)/matrix_check
 
 # Suppress makefile rebuilding.
 Makefile: ;
@@ -56,15 +56,18 @@ deps.mk:
 $(BIN_DIR)/solve: $(OBJ_DIR)/solve.o
 	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
 
-# $(BIN_DIR)/matrix_example: $(OBJ_DIR)/matrix_example.o $(OBJ_DIR)/io.o
-#	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
+$(BIN_DIR)/matrix_gen: $(OBJ_DIR)/matrix_gen.o
+	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
+
+$(BIN_DIR)/matrix_check: $(OBJ_DIR)/matrix_check.o
+	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
 
 # Pattern for generating dependency description files (*.d)
-$(DEP_DIR)/%.d: $(SRC_DIR)/%.cpp
+$(DEP_DIR)/%.d: $(SRC_DIR)/%.c
 	$(CXX) $(CXXFLAGS) -E -MM -MT $(call src_to_obj, $<) -MT $@ -MF $@ $<
 
 # Pattern for compiling object files (*.o)
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CXX) $(CXXFLAGS) -c -o $(call src_to_obj, $<) $<
 
 # Fictive target
@@ -73,8 +76,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f deps.mk
-	rm -rf data/
-
+	rm -f *.out
+	rm -f *.err
+	rm -f core*
 # Additional targers for testing purposes
 
 .PHONY: debug

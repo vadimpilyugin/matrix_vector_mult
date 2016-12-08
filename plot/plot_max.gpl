@@ -1,8 +1,8 @@
-set title 'Максимальное время от числа процессов'                       # plot title
-set xlabel 'Процессы'                              # x-axis label
-set ylabel 'Время'                          # y-axis label
+set title 'Time'                       # plot title
+set xlabel '# of processes'                              # x-axis label
+set ylabel 'time in seconds'                          # y-axis label
 
 set terminal png size 600,500
-set output 'data/pictures/max.png'
+set output 'plot/pictures/max.png'
 
-plot 'data/results/max.txt' with lp
+plot 'result/result.txt' with lp
