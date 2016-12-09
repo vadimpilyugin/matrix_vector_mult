@@ -3,6 +3,6 @@ set xlabel '# of processes'                              # x-axis label
 set ylabel 'time in seconds'                          # y-axis label
 
 set terminal png size 600,500
-set output 'plot/pictures/max.png'
+set output 'plot/pictures/4096x4096.png'
 
-plot 'result/result.txt' with lp
+plot 'Report/results/4096x4096' with lp
