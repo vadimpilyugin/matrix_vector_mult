@@ -37,7 +37,7 @@ CXXFILES := $(wildcard $(SRC_DIR)/*.c)
 
 # Alias to make all targets.
 .PHONY: all
-all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen $(BIN_DIR)/matrix_check
+all: $(BIN_DIR)/solve $(BIN_DIR)/matrix_gen $(BIN_DIR)/matrix_check $(BIN_DIR)/topology
 
 # Suppress makefile rebuilding.
 Makefile: ;
@@ -58,6 +58,9 @@ $(BIN_DIR)/solve: $(OBJ_DIR)/solve.o
 
 $(BIN_DIR)/matrix_gen: $(OBJ_DIR)/matrix_gen.o
 	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)
+
+$(BIN_DIR)/topology: $(OBJ_DIR)/topology.o
+	g++ -Wall -std=c++11 -O2 $(filter %.o, $^) -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/matrix_check: $(OBJ_DIR)/matrix_check.o
 	$(CXX) $(CXXFLAGS) $(filter %.o, $^) -o $@ $(LDFLAGS)

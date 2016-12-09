@@ -30,7 +30,7 @@ Input
 mkdir -p data result
 
 PS3='Please enter your choice: '
-options=("Generate matrices" "Multiply vector by matrix" "Check for errors" "All in one go"  "Quit")
+options=("Generate matrices" "Multiply vector by matrix" "Check for errors" "All in one go" "Generate mapping" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -68,6 +68,16 @@ do
 		    mpiexec -n $total_proc_num build/bin/solve
 		    echo
 		    mpiexec build/bin/matrix_check
+		;;
+		"Generate mapping")
+			rm -f data/mapping.txt
+			make clean
+			make all
+			if [ "$bluegene" = true ]; then
+			  mpisubmit.bg --nproc 1 build/bin/mapping
+			else
+		      build/bin/mapping 
+			fi
 		;;
         "Quit")
             break
