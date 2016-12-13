@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-bluegene=true
+bluegene=false
 
 # the_world_is_flat=true
 # # ...do something interesting...
@@ -70,14 +70,15 @@ do
 		    mpiexec build/bin/matrix_check
 		;;
 		"Generate mapping")
-			rm -f data/mapping.txt
-			make clean
-			make all
-			if [ "$bluegene" = true ]; then
-			  mpisubmit.bg --nproc 1 build/bin/mapping
-			else
-		      build/bin/mapping 
-			fi
+			rm -f data/topology.map
+                        g++ -o build/bin/topology src/topology.cpp
+                        if [ "$bluegene" = true ]; then
+                          mpisubmit.bg --nproc 1 ./build/bin/topology
+                        else
+                          build/bin/topology
+                        fi
+                        watch -n1 ls data
+
 		;;
         "Quit")
             break
